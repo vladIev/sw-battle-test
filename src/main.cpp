@@ -1,3 +1,6 @@
+#include "Scenario.hpp"
+#include "types.hpp"
+
 #include <IO/Commands/CreateMap.hpp>
 #include <IO/Commands/March.hpp>
 #include <IO/Commands/SpawnArcher.hpp>
@@ -16,9 +19,52 @@
 #include <fstream>
 #include <iostream>
 
-int main(int argc, char **argv) {
-  using namespace sw;
+using namespace sw;
 
+namespace details {
+
+template <typename CommandT> auto generateCommandHandler(Scenario &scenario) {
+  return [&scenario](CommandT command) {
+    printDebug(std::cout, command);
+    scenario.emplace_back(std::move(command));
+  };
+}
+
+auto parseScenario(std::ifstream &file) -> Scenario {
+  Scenario scenario;
+
+  io::CommandParser parser;
+  parser.add<io::CreateMap>(generateCommandHandler<io::CreateMap>(scenario))
+      .add<io::SpawnWarrior>(generateCommandHandler<io::SpawnWarrior>(scenario))
+      .add<io::SpawnArcher>(generateCommandHandler<io::SpawnArcher>(scenario))
+      .add<io::March>(generateCommandHandler<io::March>(scenario))
+      .add<io::Wait>(generateCommandHandler<io::Wait>(scenario));
+
+  parser.parse(file);
+
+  return scenario;
+}
+
+template <typename Event> auto generateEventHandler() {
+  return [](auto &event) { printDebug(std::cout, event); };
+}
+
+auto makeEventLog() -> EventLog {
+  EventLog eventLog;
+
+  eventLog.listen<io::MapCreated>(generateEventHandler<io::MapCreated>());
+  eventLog.listen<io::UnitSpawned>(generateEventHandler<io::UnitSpawned>());
+  eventLog.listen<io::MarchStarted>(generateEventHandler<io::MarchStarted>());
+  eventLog.listen<io::UnitMoved>(generateEventHandler<io::UnitMoved>());
+  eventLog.listen<io::MarchEnded>(generateEventHandler<io::MarchEnded>());
+  eventLog.listen<io::UnitAttacked>(generateEventHandler<io::UnitAttacked>());
+  eventLog.listen<io::UnitDied>(generateEventHandler<io::UnitDied>());
+
+  return eventLog;
+}
+} // namespace details
+
+int main(int argc, char **argv) {
   if (argc != 2) {
     throw std::runtime_error(
         "Error: No file specified in command line argument");
@@ -29,38 +75,8 @@ int main(int argc, char **argv) {
     throw std::runtime_error("Error: File not found - " + std::string(argv[1]));
   }
 
-  // Code for example...
-
-  std::cout << "Commands:\n";
-  io::CommandParser parser;
-  parser
-      .add<io::CreateMap>([](auto command) { printDebug(std::cout, command); })
-      .add<io::SpawnWarrior>(
-          [](auto command) { printDebug(std::cout, command); })
-      .add<io::SpawnArcher>(
-          [](auto command) { printDebug(std::cout, command); })
-      .add<io::March>([](auto command) { printDebug(std::cout, command); })
-      .add<io::Wait>([](auto command) { printDebug(std::cout, command); });
-
-  parser.parse(file);
-
-  std::cout << "\n\nEvents:\n";
-
-  EventLog eventLog;
-  eventLog.listen<io::MapCreated>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::UnitSpawned>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::MarchStarted>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::UnitMoved>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::MarchEnded>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::UnitAttacked>(
-      [](auto &event) { printDebug(std::cout, event); });
-  eventLog.listen<io::UnitDied>(
-      [](auto &event) { printDebug(std::cout, event); });
+  auto scenario = details::parseScenario(file);
+  auto eventLog = details::makeEventLog();
 
   eventLog.log(io::MapCreated{10, 10});
   eventLog.log(io::UnitSpawned{1, "Archer", 5, 3});
