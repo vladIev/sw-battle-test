@@ -15,7 +15,7 @@ You can ask questions to clarify the goal and task during the process.
 Create a simulation of unit battles on a map to experiment with mechanics. The map is H*W cells, with N units placed on it. Multiple units cannot occupy the same cell. Units of different types have various actions and characteristics. Each game tick, each unit can perform one action independently of others. The program receives a list of commands at startup and outputs events as they occur. The simulation ends when all commands are executed and no unit has an action for the next tick.
 
 ### For All Units:
-* Parameter Id - unique unit identifier, an integer.
+* Parameter: Id - unique unit identifier, an integer.
 * Characteristic: HP (Health Points)
 If HP is 0, the unit dies and will not be on the map in the next tick.
 The unit completes its action for the tick even if it dies during that tick.
@@ -63,7 +63,8 @@ At startup, the application receives the path to the scenario file via argv, con
 
 Scenario Example:
 
-"""
+```cpp
+
 // Format: COMMAND_NAME [...int args]
 // Each command has specific properties at given argument positions
 
@@ -96,14 +97,15 @@ SPAWN_WARRIOR 4 30 30 15 5
 
 // send unit id=4 to point 16 20
 MARCH 4 16 20
-"""
 
 ## Events
 The program should output all occurring events to stdout. The following events exist: 'MAP_CREATED', 'UNIT_SPAWNED', 'MARCH_STARTED', 'MARCH_FINISHED', 'RECEIVED_DAMAGE', 'UNIT_DIED'.
 
+```
+
 Example Output:
 
-"""
+```cpp
 // TICK_NUMBER is the tick count when the event occurred
 [TICK_NUMBER] MAP_CREATED 30 30 // map created
 [TICK_NUMBER] UNIT_SPAWNED ID 1 TYPE Warrior ON 2 2 // warrior spawned at coordinates 2 2
@@ -116,7 +118,7 @@ Example Output:
 [TICK_NUMBER] UNIT_DIED ID 2
 // unit 1 movement finished at coordinates 11 21
 [TICK_NUMBER] MARCH_FINISHED ID 1 AT 11 21
-"""
+```
 
 Technical Requirements:
 OS: Ubuntu
