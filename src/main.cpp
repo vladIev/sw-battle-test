@@ -53,7 +53,10 @@ auto parseScenario(std::ifstream& file) -> Scenario
 template <typename Event>
 auto generateEventHandler()
 {
+	return [](auto& event, uint64_t tick) {
+		std::cout << std::format("[{}] ", tick);
 		printDebug(std::cout, event);
+	};
 }
 
 auto makeEventLog() -> EventLog
