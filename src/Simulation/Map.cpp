@@ -30,7 +30,7 @@ auto Map::getUnitsInRange(Position center, uint32_t to, uint32_t from) const -> 
 	{
 		for(const auto x : xs)
 		{
-			if(std::abs(static_cast<int64_t>(x - center.x)) >= from &&
+			if(std::abs(static_cast<int64_t>(x - center.x)) >= from ||
 			   std::abs(static_cast<int64_t>(y - center.y)) >= from)
 			{
 

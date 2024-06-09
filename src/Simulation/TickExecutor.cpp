@@ -106,7 +106,7 @@ auto TickExecutor::executeMeleeAttack(MeleeAttack& unit,
 									  const Map& map,
 									  UnitId attackerId) -> std::optional<io::UnitAttacked>
 {
-	auto targetsId = map.getUnitsInRange(attackerId, 1);
+	const auto targetsId = map.getUnitsInRange(attackerId, 1);
 	if(targetsId.empty()) return std::nullopt;
 
 	std::vector<Unit*> targets = details::unitsById(d_units, targetsId);
@@ -122,7 +122,7 @@ auto TickExecutor::executeRangeAttack(RangeAttack& unit,
 									  const Map& map,
 									  UnitId attackerId) -> std::optional<io::UnitAttacked>
 {
-	auto targetsId = map.getUnitsInRange(attackerId, unit.rangeAttackDistance());
+	const auto targetsId = map.getUnitsInRange(attackerId, unit.rangeAttackDistance(), 2);
 	if(targetsId.empty()) return std::nullopt;
 
 	std::vector<Unit*> targets = details::unitsById(d_units, targetsId);
@@ -150,17 +150,18 @@ void TickExecutor::action(UnitsVariant& unit, const Map& map)
 	std::visit(
 		[&map, this](auto& unit) {
 			using T = std::decay_t<decltype(unit)>;
-			if constexpr(std::derived_from<T, MeleeAttack>)
+			if constexpr(std::derived_from<T, RangeAttack>)
 			{
-				if(auto event = executeMeleeAttack(unit, map, unit.id()); event)
+				if(auto event = executeRangeAttack(unit, map, unit.id()); event)
 				{
 					d_eventLog->log(std::move(*event));
 					return;
 				}
 			}
-			if constexpr(std::derived_from<T, RangeAttack>)
+
+			if constexpr(std::derived_from<T, MeleeAttack>)
 			{
-				if(auto event = executeRangeAttack(unit, map, unit.id()); event)
+				if(auto event = executeMeleeAttack(unit, map, unit.id()); event)
 				{
 					d_eventLog->log(std::move(*event));
 					return;
