@@ -2,7 +2,8 @@
 #include <Simulation/Map.hpp>
 #include <Simulation/Simulation.hpp>
 
-#include <cassert>
+#include <format>
+#include <string>
 
 namespace sw
 {
@@ -15,7 +16,7 @@ namespace details
 
 [[nodiscard]] inline std::string mapInfo(const Map& map)
 {
-	return "width = " + std::to_string(map.width()) + ", height = " + std::to_string(map.height());
+	return std::format("width = {}, height = {}", map.width(), map.height());
 }
 
 } // namespace details
@@ -26,17 +27,25 @@ auto CommandsValidator::validateSpawnCommand(std::string_view command,
 											 const Simulation& simulation) noexcept
 	-> ErrorMessageOpt
 {
+	if(unitId == 0)
+	{
+		return {std::format(
+			"Error: {} command failed. Incorrect unit id: {})", command.data(), unitId)};
+	}
+
 	if(simulation.d_units.contains(unitId))
 	{
-		return {std::string("Error: ") + command.data() +
-				"command failed. Duplicated unit id: " + std::to_string(unitId)};
+		return {std::format(
+			"Error: {}, command failed. Duplicated unit id: {}", command.data(), unitId)};
 	}
 
 	if(!details::isPositionOnMap(position, *simulation.d_map))
 	{
-		return {std::string("Error: ") + command.data() + " command failed. Destination coords " +
-				position.asString() +
-				" are out of the map's boundaries: " + details::mapInfo(*simulation.d_map)};
+		return {std::format(
+			"Error: {} command failed. Destination coords {}  are out of the map's boundaries: {}",
+			command.data(),
+			position.asString(),
+			details::mapInfo(*simulation.d_map))};
 	}
 	return std::nullopt;
 }
@@ -48,6 +57,12 @@ auto CommandsValidator::validate(const io::CreateMap& command,
 	{
 		return {"Error: CREATE MAP command failed. Map already exists"};
 	}
+	if(command.height <= 0 || command.width <= 0)
+	{
+		return {std::format("Error: CREATE MAP command failed. Invalid map size: {}x{}",
+							command.width,
+							command.height)};
+	}
 	return std::nullopt;
 }
 
@@ -58,14 +73,16 @@ auto CommandsValidator::validate(const io::March& command,
 
 	if(!simulation.d_units.contains(command.unitId))
 	{
-		return {"Error: MARCH command failed. Unknow unit id: " + std::to_string(command.unitId)};
+		return {std::format("Error: MARCH command failed. Unknow unit id: ", command.unitId)};
 	}
 
 	const Position destination = {command.targetX, command.targetY};
 	if(!details::isPositionOnMap(destination, *simulation.d_map))
 	{
-		return {"Error: MARCH command failed. Destination coords " + destination.asString() +
-				" are out of the map's boundaries: " + details::mapInfo(*simulation.d_map)};
+		return {std::format(
+			"Error: MARCH command failed. Destination coords {} are out of the map's boundaries: ",
+			destination.asString(),
+			details::mapInfo(*simulation.d_map))};
 	}
 
 	return std::nullopt;
