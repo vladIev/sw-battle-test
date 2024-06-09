@@ -32,7 +32,7 @@ class TickExecutor
   public:
 	TickExecutor(EventLog* eventLog, std::unordered_map<UnitId, UnitsVariant>* units);
 	void run(Map& map, uint32_t numOfTicks);
-	void runUntilFinish(Map& map);
+	void runWhileHaveMarchingUnits(Map& map);
 };
 
 } // namespace sw

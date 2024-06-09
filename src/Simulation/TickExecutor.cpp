@@ -217,7 +217,7 @@ void TickExecutor::run(Map& map, uint32_t numOfTicks)
 	}
 }
 
-void TickExecutor::runUntilFinish(Map& map)
+void TickExecutor::runWhileHaveMarchingUnits(Map& map)
 {
 	while(1)
 	{

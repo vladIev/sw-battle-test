@@ -121,7 +121,7 @@ void Simulation::run()
 
 void Simulation::finish()
 {
-	d_executor.runUntilFinish(*d_map);
+	d_executor.runWhileHaveMarchingUnits(*d_map);
 }
 
 } // namespace sw
