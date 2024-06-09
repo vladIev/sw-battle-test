@@ -7,7 +7,6 @@
 #include <limits>
 #include <utils.hpp>
 
-#include <iostream>
 #include <ranges>
 
 namespace sw
@@ -113,19 +112,8 @@ auto TickExecutor::executeMeleeAttack(MeleeAttack& unit,
 	std::vector<Unit*> targets = details::unitsById(d_units, targetsId);
 	auto target = unit.selectTarget(targets);
 	if(!target) return std::nullopt;
-	std::string str;
-	for(auto target : targets)
-	{
-		str += std::format("{}[{},{}] ", target->id(), target->hp(), target->position().asString());
-	}
-	std::cout << std::format("Unit {} {} performs melee attack. Possible targets: {}",
-							 attackerId,
-							 map.unitPosition(attackerId).asString(),
-							 str)
-			  << std::endl;
 
 	const auto dmg = unit.meleeAttack(target);
-	std::cout << "Selected target: " << target->id() << " dmg " << dmg << std::endl;
 
 	return io::UnitAttacked{attackerId, target->id(), dmg, target->hp()};
 }
@@ -138,18 +126,11 @@ auto TickExecutor::executeRangeAttack(RangeAttack& unit,
 	if(targetsId.empty()) return std::nullopt;
 
 	std::vector<Unit*> targets = details::unitsById(d_units, targetsId);
-	std::string str;
-	for(auto target : targets)
-	{
-		str += std::format("{}[{}] ", target->id(), target->hp());
-	}
-	std::cout << std::format(
-		"Unit {} performs range attack. Possible targets: {}", attackerId, str);
+
 	auto target = unit.selectTarget(targets, map.unitPosition(attackerId));
 	if(!target) return std::nullopt;
 
 	const auto dmg = unit.rangeAttack(target);
-	std::cout << "Selected target: " << target->id() << " dmg " << dmg << std::endl;
 
 	return io::UnitAttacked{attackerId, target->id(), dmg, target->hp()};
 }
