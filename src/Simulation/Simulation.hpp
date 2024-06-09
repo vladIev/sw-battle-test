@@ -2,6 +2,7 @@
 #include <IO/EventLogs/UnitSpawned.hpp>
 #include <IO/System/EventLog.hpp>
 #include <Simulation/Map.hpp>
+#include <Simulation/TickExecutor.hpp>
 #include <Units/Units.hpp>
 #include <types.hpp>
 #include <utils.hpp>
@@ -22,6 +23,7 @@ class Simulation
 	EventLog d_eventLog;
 	std::unique_ptr<Map> d_map;
 	std::unordered_map<UnitId, UnitsVariant> d_units;
+	TickExecutor d_executor;
 
 	void execute(const io::CreateMap& command);
 	void execute(const io::March& command);

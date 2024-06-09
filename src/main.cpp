@@ -53,7 +53,7 @@ auto parseScenario(std::ifstream& file) -> Scenario
 template <typename Event>
 auto generateEventHandler()
 {
-	return [](auto& event) { printDebug(std::cout, event); };
+		printDebug(std::cout, event);
 }
 
 auto makeEventLog() -> EventLog

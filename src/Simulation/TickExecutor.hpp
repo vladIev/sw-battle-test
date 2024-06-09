@@ -18,6 +18,7 @@ class TickExecutor
 {
 	EventLog* d_eventLog;
 	std::unordered_map<UnitId, UnitsVariant>* d_units;
+	uint64_t d_ticksCntr;
 
 	std::optional<io::UnitAttacked>
 	executeMeleeAttack(MeleeAttack& unit, const Map& map, UnitId attackerId);

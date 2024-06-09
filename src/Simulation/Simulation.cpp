@@ -2,7 +2,6 @@
 
 #include <IO/System/EventLog.hpp>
 #include <Simulation/CommandsValidator.hpp>
-#include <Simulation/TickExecutor.hpp>
 #include <Units/UnitsFactory.hpp>
 
 #include <IO/EventLogs/MapCreated.hpp>
@@ -72,8 +71,7 @@ void Simulation::execute(const io::March& command)
 
 void Simulation::execute(const io::Wait& command)
 {
-	TickExecutor executor(&d_eventLog, &d_units);
-	executor.run(*d_map, command.ticks);
+	d_executor.run(*d_map, command.ticks);
 }
 
 void Simulation::execute(const Command& command)
@@ -99,6 +97,7 @@ auto Simulation::getUnitPtr(UnitId unitId) -> Unit*
 Simulation::Simulation(Scenario&& scenario, EventLog&& eventLog)
 	: d_eventLog(std::move(eventLog))
 	, d_scenario(std::move(scenario))
+	, d_executor(&d_eventLog, &d_units)
 { }
 
 Simulation::~Simulation()
@@ -122,8 +121,7 @@ void Simulation::run()
 
 void Simulation::finish()
 {
-	auto executor = TickExecutor(&d_eventLog, &d_units);
-	executor.runUntilFinish(*d_map);
+	d_executor.runUntilFinish(*d_map);
 }
 
 } // namespace sw
