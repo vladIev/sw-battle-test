@@ -12,7 +12,7 @@ class EventLog
   private:
 	using Tick = uint64_t;
 	std::unordered_map<std::type_index, std::function<void(void*, Tick)>> _handlers;
-	Tick _tick;
+	Tick _tick{0};
 
   public:
 	template <class TEvent>

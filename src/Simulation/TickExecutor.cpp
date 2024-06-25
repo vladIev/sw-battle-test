@@ -5,6 +5,7 @@
 #include <Simulation/Map.hpp>
 #include <Units/Abilities.hpp>
 #include <limits>
+#include <types.hpp>
 #include <utils.hpp>
 
 #include <ranges>
@@ -70,15 +71,18 @@ void handleDeadUnits(std::ranges::view auto deadUnits,
 					 Map& map,
 					 EventLog& eventLog)
 {
+	std::vector<UnitId> deadIds;
+
 	for(const auto unit : deadUnits)
 	{
-		std::visit(
-			[&](const auto& unit) {
-				units.erase(unit.id());
-				map.removeUnit(unit.id());
-				eventLog.log(io::UnitDied{unit.id()});
-			},
-			unit);
+		std::visit([&](const auto& unit) { deadIds.push_back(unit.id()); }, unit);
+	}
+
+	for(const auto id : deadIds)
+	{
+		units.erase(id);
+		map.removeUnit(id);
+		eventLog.log(io::UnitDied{id});
 	}
 }
 
