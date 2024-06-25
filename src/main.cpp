@@ -17,8 +17,10 @@
 #include <IO/System/EventLog.hpp>
 #include <IO/System/PrintDebug.hpp>
 
+#include <format>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 using namespace sw;
 
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
 	}
 
 	const auto pathToCommandsFile = std::string_view(argv[1]);
-	std::ifstream file(pathToCommandsFile);
+	std::ifstream file(pathToCommandsFile.data());
 	if(!file)
 	{
 		throw std::runtime_error("Error: File not found - " + std::string(pathToCommandsFile));

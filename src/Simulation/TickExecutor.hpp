@@ -20,14 +20,17 @@ class TickExecutor
 	std::unordered_map<UnitId, UnitsVariant>* d_units;
 	uint64_t d_ticksCntr;
 
-	std::optional<io::UnitAttacked>
-	executeMeleeAttack(MeleeAttack& unit, const Map& map, UnitId attackerId);
+	auto executeMeleeAttack(MeleeAttack& unit,
+							const Map& map,
+							UnitId attackerId) -> std::optional<io::UnitAttacked>;
 
-	std::optional<io::UnitAttacked>
-	executeRangeAttack(RangeAttack& unit, const Map& map, UnitId attackerId);
+	auto executeRangeAttack(RangeAttack& unit,
+							const Map& map,
+							UnitId attackerId) -> std::optional<io::UnitAttacked>;
 
-	std::optional<io::UnitMoved> executeMove(Unit& unit, const Map& map);
-	void action(UnitsVariant& unit, const Map& map);
+	auto executeMove(Unit& unit, const Map& map) -> std::optional<io::UnitMoved>;
+
+	void executeUnitAction(UnitsVariant& unit, const Map& map);
 
   public:
 	TickExecutor(EventLog* eventLog, std::unordered_map<UnitId, UnitsVariant>* units);

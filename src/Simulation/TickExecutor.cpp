@@ -43,14 +43,17 @@ auto chooseNextPosition(Position current, Position destination) -> Position
 	return nextPosition;
 }
 
-auto deadAndAliveUnits(std::ranges::view auto unitsView)
+auto splitOnDeadAndAlive(std::ranges::view auto unitsView)
 {
 	const auto predicate = [](const auto& unit) -> bool {
 		return std::visit([](const auto& unit) { return unit.isAlive(); }, unit.second);
 	};
+
 	auto dead =
 		unitsView | std::views::filter([&predicate](const auto& val) { return !predicate(val); });
+
 	auto alive = unitsView | std::views::filter(predicate);
+
 	return std::make_pair(dead, alive);
 }
 
@@ -146,7 +149,7 @@ auto TickExecutor::executeMove(Unit& unit, const Map& map) -> std::optional<io::
 	return io::UnitMoved{unit.id(), nextPosition.x, nextPosition.y};
 }
 
-void TickExecutor::action(UnitsVariant& unit, const Map& map)
+void TickExecutor::executeUnitAction(UnitsVariant& unit, const Map& map)
 {
 	std::visit(
 		[&map, this](auto& unit) {
@@ -203,10 +206,10 @@ void TickExecutor::run(Map& map, uint32_t numOfTicks)
 
 		for(auto& [_, unit] : *d_units)
 		{
-			action(unit, map);
+			executeUnitAction(unit, map);
 		}
 
-		auto [dead, alive] = details::deadAndAliveUnits(*d_units | std::views::all);
+		auto [dead, alive] = details::splitOnDeadAndAlive(*d_units | std::views::all);
 		details::handleAliveUnits(alive | std::views::values, map);
 
 		const bool haveDeads = !dead.empty();

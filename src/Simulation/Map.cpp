@@ -16,13 +16,13 @@ auto Map::getUnitsInRange(Position center, uint32_t to, uint32_t from) const -> 
 
 	for(int64_t i = center.y - to; i <= center.y + to; i++)
 	{
-		ys.insert(std::clamp(i, 0ll, static_cast<int64_t>(d_height - 1)));
+		ys.insert(std::clamp(i, int64_t{0}, static_cast<int64_t>(d_height - 1)));
 	}
 
 	for(int64_t i = center.x - to; i <= center.x + to; i++)
 	{
 
-		xs.insert(std::clamp(i, 0ll, static_cast<int64_t>(d_width - 1)));
+		xs.insert(std::clamp(i, int64_t{0}, static_cast<int64_t>(d_width - 1)));
 	}
 
 	std::vector<UnitId> neighbourUnits;
